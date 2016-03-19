@@ -1,0 +1,9 @@
+servers:
+- listen: :2022
+  connect: localhost:22
+  password: password
+clients:
+- listen: :3022
+  connects:
+  - connect: localhost:2022
+    password: password
