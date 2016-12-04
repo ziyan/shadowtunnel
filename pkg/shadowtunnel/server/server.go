@@ -79,6 +79,7 @@ func (s *Server) accept(conn net.Conn) {
 			if err != nil {
 				glog.Warningf("failed to connect to remote server %s: %s", s.connect, err)
 				stream.Close()
+				return
 			}
 
 			go func() {
