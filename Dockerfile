@@ -1,8 +1,8 @@
-FROM debian:wheezy
+FROM busybox
 
-WORKDIR /data
-ENTRYPOINT ["/opt/bin/shadowtunnel"]
-ADD shadowtunnel /opt/bin/shadowtunnel
+ADD shadowtunnel /bin/shadowtunnel
 
 USER nobody
+
+ENTRYPOINT ["/bin/shadowtunnel"]
 
