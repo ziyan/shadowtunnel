@@ -70,6 +70,8 @@ func (c *Client) listen() {
 }
 
 func (c *Client) accept(conn net.Conn) {
+	log.Infof("accepted connection in client mode from: %v", conn.RemoteAddr())
+
 	session, err := c.open()
 	if err != nil {
 		log.Errorf("failed to create client session: %s", err)
@@ -83,6 +85,8 @@ func (c *Client) accept(conn net.Conn) {
 		session.Close()
 		return
 	}
+
+	log.Infof("established stream in client mode: %v -> %v", conn.RemoteAddr(), c.connect)
 
 	go func() {
 		defer conn.Close()
