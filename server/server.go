@@ -17,12 +17,13 @@ var log = logging.MustGetLogger("server")
 type Server struct {
 	password []byte
 	connect  string
+	compress bool
 	timeout  time.Duration
 
 	listener net.Listener
 }
 
-func NewServer(password []byte, listen, connect string, timeout time.Duration) (*Server, error) {
+func NewServer(password []byte, listen, connect string, compress bool, timeout time.Duration) (*Server, error) {
 
 	listener, err := net.Listen("tcp", listen)
 	if err != nil {
@@ -33,6 +34,7 @@ func NewServer(password []byte, listen, connect string, timeout time.Duration) (
 		password: password,
 		connect:  connect,
 		listener: listener,
+		compress: compress,
 		timeout:  timeout,
 	}
 
@@ -64,7 +66,13 @@ func (s *Server) accept(conn net.Conn) {
 
 	log.Infof("accepted connection in server mode from: %v", conn.RemoteAddr())
 
-	session, err := yamux.Server(compress.NewCompressedConnection(secure.NewEncryptedConnection(conn, s.password)), nil)
+	var connection io.ReadWriteCloser
+	connection = secure.NewEncryptedConnection(conn, s.password)
+	if s.compress {
+		connection = compress.NewCompressedConnection(connection)
+	}
+
+	session, err := yamux.Server(connection, nil)
 	if err != nil {
 		log.Errorf("failed to create server session: %s", err)
 		return

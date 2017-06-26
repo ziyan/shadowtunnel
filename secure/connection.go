@@ -45,7 +45,7 @@ func (c *EncryptedConnection) Write(b []byte) (n int, err error) {
 		c.encrypter = encrypter
 	}
 
-	log.Debugf("encrypting and sending to %v: %v", c.RemoteAddr(), b)
+	log.Debugf("encrypting and sending to %v: %v", c.conn.RemoteAddr(), b)
 
 	// encrypt
 	c.encrypter.XORKeyStream(b, b)
@@ -84,19 +84,11 @@ func (c *EncryptedConnection) Read(b []byte) (n int, err error) {
 	// decrypt
 	c.decrypter.XORKeyStream(b[:size], b[:size])
 
-	log.Debugf("received and decrypted from %v: %v", c.RemoteAddr(), b[:size])
+	log.Debugf("received and decrypted from %v: %v", c.conn.RemoteAddr(), b[:size])
 	return size, nil
 }
 
 func (c *EncryptedConnection) Close() error {
-	log.Debugf("closing encrypted connection to %v", c.RemoteAddr())
+	log.Debugf("closing encrypted connection to %v", c.conn.RemoteAddr())
 	return c.conn.Close()
-}
-
-func (c *EncryptedConnection) LocalAddr() net.Addr {
-	return c.conn.LocalAddr()
-}
-
-func (c *EncryptedConnection) RemoteAddr() net.Addr {
-	return c.conn.RemoteAddr()
 }

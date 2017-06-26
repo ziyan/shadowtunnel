@@ -2,7 +2,9 @@ servers:
 - listen: :2022
   connect: localhost:22
   password: password
+  compress: true
 clients:
 - listen: :3022
   connect: localhost:2022
   password: password
+  compress: true

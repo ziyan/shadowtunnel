@@ -15,6 +15,9 @@ type ServerConfig struct {
 	// remote endpoint to connect to, leave empty if you want to be a socks proxy
 	Connect string `yaml:"connect,omitempty"`
 
+	// whether to compress connection
+	Compress bool `yaml:"compress"`
+
 	// timeout while connecting
 	Timeout string `yaml:"timeout,omitempty"`
 }
@@ -29,6 +32,9 @@ type ClientConfig struct {
 
 	// password for encryption
 	Password string `yaml:"password"`
+
+	// whether to compress connection
+	Compress bool `yaml:"compress"`
 
 	// timeout while connecting
 	Timeout string `yaml:"timeout,omitempty"`
@@ -63,7 +69,7 @@ func ParseConfig(data []byte) (*Config, error) {
 	return conf, nil
 }
 
-func SimpleConfig(server bool, listen, connect, password, timeout string) *Config {
+func SimpleConfig(server bool, listen, connect, password string, compress bool, timeout string) *Config {
 	if server {
 		return &Config{
 			Servers: []*ServerConfig{
@@ -71,6 +77,7 @@ func SimpleConfig(server bool, listen, connect, password, timeout string) *Confi
 					Listen:   listen,
 					Connect:  connect,
 					Password: password,
+					Compress: compress,
 					Timeout:  timeout,
 				},
 			},
@@ -82,6 +89,7 @@ func SimpleConfig(server bool, listen, connect, password, timeout string) *Confi
 					Listen:   listen,
 					Connect:  connect,
 					Password: password,
+					Compress: compress,
 					Timeout:  timeout,
 				},
 			},

@@ -18,6 +18,7 @@ var log = logging.MustGetLogger("client")
 type Client struct {
 	connect  string
 	password []byte
+	compress bool
 	timeout  time.Duration
 
 	listener net.Listener
@@ -25,7 +26,7 @@ type Client struct {
 	session  *yamux.Session
 }
 
-func NewClient(password []byte, listen, connect string, timeout time.Duration) (*Client, error) {
+func NewClient(password []byte, listen, connect string, compress bool, timeout time.Duration) (*Client, error) {
 
 	listener, err := net.Listen("tcp", listen)
 	if err != nil {
@@ -36,6 +37,7 @@ func NewClient(password []byte, listen, connect string, timeout time.Duration) (
 		password: password,
 		connect:  connect,
 		timeout:  timeout,
+		compress: compress,
 		listener: listener,
 	}
 
@@ -124,7 +126,13 @@ func (c *Client) open() (*yamux.Session, error) {
 		return nil, err
 	}
 
-	session, err := yamux.Client(compress.NewCompressedConnection(secure.NewEncryptedConnection(conn, c.password)), nil)
+	var connection io.ReadWriteCloser
+	connection = secure.NewEncryptedConnection(conn, c.password)
+	if c.compress {
+		connection = compress.NewCompressedConnection(connection)
+	}
+
+	session, err := yamux.Client(connection, nil)
 	if err != nil {
 		conn.Close()
 		return nil, err

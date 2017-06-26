@@ -60,6 +60,10 @@ func Run(args []string) {
 			Name:  "server",
 			Usage: "server mode",
 		},
+		cli.BoolFlag{
+			Name:  "compress",
+			Usage: "enable compression",
+		},
 		cli.StringFlag{
 			Name:  "password",
 			Value: "",
@@ -99,7 +103,7 @@ func Run(args []string) {
 				return err
 			}
 		} else {
-			configs = config.SimpleConfig(c.Bool("server"), c.String("listen"), c.String("connect"), c.String("password"), c.String("timeout"))
+			configs = config.SimpleConfig(c.Bool("server"), c.String("listen"), c.String("connect"), c.String("password"), c.Bool("compress"), c.String("timeout"))
 		}
 
 		log.Infof("configuration loaded:\n%v", configs)
@@ -123,7 +127,7 @@ func Run(args []string) {
 				log.Errorf("failed to parse timeout \"%s\": %s", config.Timeout, err)
 				return err
 			}
-			server, err := server.NewServer([]byte(config.Password), config.Listen, config.Connect, timeout)
+			server, err := server.NewServer([]byte(config.Password), config.Listen, config.Connect, config.Compress, timeout)
 			if err != nil {
 				log.Errorf("failed to create server on endpoint \"%s\": %s", config.Listen, err)
 				return err
@@ -157,7 +161,7 @@ func Run(args []string) {
 				log.Errorf("failed to parse timeout \"%s\": %s", config.Timeout, err)
 				return err
 			}
-			client, err := client.NewClient([]byte(config.Password), config.Listen, config.Connect, timeout)
+			client, err := client.NewClient([]byte(config.Password), config.Listen, config.Connect, config.Compress, timeout)
 			if err != nil {
 				log.Errorf("failed to create client on endpoint \"%s\": %s", config.Listen, err)
 				return err
