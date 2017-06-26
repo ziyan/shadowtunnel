@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/snappy"
 	"github.com/hashicorp/yamux"
 	"github.com/op/go-logging"
 
@@ -92,13 +93,13 @@ func (c *Client) accept(conn net.Conn) {
 
 	done1 := make(chan struct{})
 	go func() {
-		io.Copy(conn, stream)
+		io.Copy(conn, snappy.NewReader(stream))
 		close(done1)
 	}()
 
 	done2 := make(chan struct{})
 	go func() {
-		io.Copy(stream, conn)
+		io.Copy(snappy.NewWriter(stream), conn)
 		close(done2)
 	}()
 
