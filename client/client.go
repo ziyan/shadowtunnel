@@ -70,12 +70,13 @@ func (c *Client) listen() {
 }
 
 func (c *Client) accept(conn net.Conn) {
+	defer conn.Close()
+
 	log.Infof("accepted connection in client mode from: %v", conn.RemoteAddr())
 
 	session, err := c.open()
 	if err != nil {
 		log.Errorf("failed to create client session: %s", err)
-		conn.Close()
 		return
 	}
 
@@ -85,20 +86,28 @@ func (c *Client) accept(conn net.Conn) {
 		session.Close()
 		return
 	}
+	defer stream.Close()
 
 	log.Infof("established stream in client mode: %v -> %v", conn.RemoteAddr(), c.connect)
 
+	done1 := make(chan struct{})
 	go func() {
-		defer conn.Close()
-		defer stream.Close()
 		io.Copy(conn, stream)
+		close(done1)
 	}()
 
+	done2 := make(chan struct{})
 	go func() {
-		defer conn.Close()
-		defer stream.Close()
 		io.Copy(stream, conn)
+		close(done2)
 	}()
+
+	select {
+	case <-done1:
+	case <-done2:
+	}
+
+	log.Infof("closing stream in client mode: %v -> %v", conn.RemoteAddr(), c.connect)
 }
 
 func (c *Client) open() (*yamux.Session, error) {

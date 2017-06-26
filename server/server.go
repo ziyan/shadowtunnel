@@ -59,12 +59,13 @@ func (s *Server) listen() {
 }
 
 func (s *Server) accept(conn net.Conn) {
+	defer conn.Close()
+
 	log.Infof("accepted connection in server mode from: %v", conn.RemoteAddr())
 
 	session, err := yamux.Server(secure.NewEncryptedConnection(conn, s.password), nil)
 	if err != nil {
 		log.Errorf("failed to create server session: %s", err)
-		conn.Close()
 		return
 	}
 	defer session.Close()
@@ -80,25 +81,35 @@ func (s *Server) accept(conn net.Conn) {
 		}
 
 		go func() {
+			defer stream.Close()
+
 			conn2, err := net.DialTimeout("tcp", s.connect, s.timeout)
 			if err != nil {
 				log.Warningf("failed to connect to remote server %s: %s", s.connect, err)
-				stream.Close()
 				return
 			}
+			defer conn2.Close()
+
 			log.Infof("established stream in server mode: %v -> %v", conn.RemoteAddr(), conn2.RemoteAddr())
 
+			done1 := make(chan struct{})
 			go func() {
-				defer conn2.Close()
-				defer stream.Close()
 				io.Copy(conn2, stream)
+				close(done1)
 			}()
 
+			done2 := make(chan struct{})
 			go func() {
-				defer conn2.Close()
-				defer stream.Close()
 				io.Copy(stream, conn2)
+				close(done2)
 			}()
+
+			select {
+			case <-done1:
+			case <-done2:
+			}
+
+			log.Infof("closing stream in server mode: %v -> %v", conn.RemoteAddr(), conn2.RemoteAddr())
 		}()
 	}
 

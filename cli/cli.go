@@ -1,11 +1,11 @@
 package cli
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"time"
-	"errors"
 
 	"github.com/op/go-logging"
 	"github.com/urfave/cli"
