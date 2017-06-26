@@ -21,4 +21,4 @@ save:
 
 .PHONY: format
 format:
-	gofmt -l -w client server config secure cli
+	gofmt -l -w client server config secure compress cli

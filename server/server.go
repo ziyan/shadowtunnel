@@ -5,10 +5,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/golang/snappy"
 	"github.com/hashicorp/yamux"
 	"github.com/op/go-logging"
 
+	"github.com/ziyan/shadowtunnel/compress"
 	"github.com/ziyan/shadowtunnel/secure"
 )
 
@@ -64,7 +64,7 @@ func (s *Server) accept(conn net.Conn) {
 
 	log.Infof("accepted connection in server mode from: %v", conn.RemoteAddr())
 
-	session, err := yamux.Server(secure.NewEncryptedConnection(conn, s.password), nil)
+	session, err := yamux.Server(compress.NewCompressedConnection(secure.NewEncryptedConnection(conn, s.password)), nil)
 	if err != nil {
 		log.Errorf("failed to create server session: %s", err)
 		return
@@ -95,13 +95,13 @@ func (s *Server) accept(conn net.Conn) {
 
 			done1 := make(chan struct{})
 			go func() {
-				io.Copy(conn2, snappy.NewReader(stream))
+				io.Copy(conn2, stream)
 				close(done1)
 			}()
 
 			done2 := make(chan struct{})
 			go func() {
-				io.Copy(snappy.NewWriter(stream), conn2)
+				io.Copy(stream, conn2)
 				close(done2)
 			}()
 

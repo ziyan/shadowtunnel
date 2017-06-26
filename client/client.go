@@ -6,10 +6,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/snappy"
 	"github.com/hashicorp/yamux"
 	"github.com/op/go-logging"
 
+	"github.com/ziyan/shadowtunnel/compress"
 	"github.com/ziyan/shadowtunnel/secure"
 )
 
@@ -93,13 +93,13 @@ func (c *Client) accept(conn net.Conn) {
 
 	done1 := make(chan struct{})
 	go func() {
-		io.Copy(conn, snappy.NewReader(stream))
+		io.Copy(conn, stream)
 		close(done1)
 	}()
 
 	done2 := make(chan struct{})
 	go func() {
-		io.Copy(snappy.NewWriter(stream), conn)
+		io.Copy(stream, conn)
 		close(done2)
 	}()
 
@@ -124,7 +124,7 @@ func (c *Client) open() (*yamux.Session, error) {
 		return nil, err
 	}
 
-	session, err := yamux.Client(secure.NewEncryptedConnection(conn, c.password), nil)
+	session, err := yamux.Client(compress.NewCompressedConnection(secure.NewEncryptedConnection(conn, c.password)), nil)
 	if err != nil {
 		conn.Close()
 		return nil, err
