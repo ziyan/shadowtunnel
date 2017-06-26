@@ -3,6 +3,8 @@ package secure
 
 import (
 	"errors"
+
+	"github.com/op/go-logging"
 )
 
 const (
@@ -16,3 +18,5 @@ const (
 var (
 	ErrInvalidPassword = errors.New("invalid password")
 )
+
+var log = logging.MustGetLogger("secure")

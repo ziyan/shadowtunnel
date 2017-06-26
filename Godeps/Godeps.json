@@ -1,25 +1,32 @@
 {
 	"ImportPath": "github.com/ziyan/shadowtunnel",
-	"GoVersion": "go1.6",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
 		{
-			"ImportPath": "github.com/golang/glog",
-			"Rev": "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
+			"ImportPath": "github.com/hashicorp/yamux",
+			"Rev": "d1caa6c97c9fc1cc9e83bbe34d0603f9ff0ce8bd"
 		},
 		{
-			"ImportPath": "github.com/hashicorp/yamux",
-			"Rev": "df949784da9ed028ee76df44652e42d37a09d7e4"
+			"ImportPath": "github.com/op/go-logging",
+			"Comment": "v1-7-g970db52",
+			"Rev": "970db520ece77730c7e4724c61121037378659d9"
+		},
+		{
+			"ImportPath": "github.com/urfave/cli",
+			"Comment": "v1.18.0-37-gd9021fa",
+			"Rev": "d9021faab69f92295ef7061bd39e4a76dcbdef32"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/pbkdf2",
-			"Rev": "3760e016850398b85094c4c99e955b8c3dea5711"
+			"Rev": "adbae1b6b6fb4b02448a0fc0dbbc9ba2b95b294d"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
-			"Rev": "a83829b6f1293c91addabc89d0571c246397bbf4"
+			"Rev": "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b"
 		}
 	]
 }

@@ -6,10 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/hashicorp/yamux"
-	"github.com/ziyan/shadowtunnel/pkg/shadowtunnel/secure"
+	"github.com/op/go-logging"
+
+	"github.com/ziyan/shadowtunnel/secure"
 )
+
+var log = logging.MustGetLogger("client")
 
 type Client struct {
 	connect  string
@@ -58,7 +61,7 @@ func (c *Client) listen() {
 	for {
 		conn, err := c.listener.Accept()
 		if err != nil {
-			glog.Warningf("failed to accept tcp connection: %s", err)
+			log.Warningf("failed to accept tcp connection: %s", err)
 			break
 		}
 
@@ -69,14 +72,14 @@ func (c *Client) listen() {
 func (c *Client) accept(conn net.Conn) {
 	session, err := c.open()
 	if err != nil {
-		glog.Errorf("failed to create client session: %s", err)
+		log.Errorf("failed to create client session: %s", err)
 		conn.Close()
 		return
 	}
 
 	stream, err := session.OpenStream()
 	if err != nil {
-		glog.Errorf("failed to create client stream: %s", err)
+		log.Errorf("failed to create client stream: %s", err)
 		session.Close()
 		return
 	}

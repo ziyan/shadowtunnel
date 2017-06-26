@@ -3,8 +3,6 @@ package secure
 import (
 	"crypto/cipher"
 	"net"
-
-	"github.com/golang/glog"
 )
 
 type EncryptedConnection struct {
@@ -47,7 +45,7 @@ func (c *EncryptedConnection) Write(b []byte) (n int, err error) {
 		c.encrypter = encrypter
 	}
 
-	glog.V(9).Infof("encrypting and sending to %v: %v", c.RemoteAddr(), b)
+	log.Debugf("encrypting and sending to %v: %v", c.RemoteAddr(), b)
 
 	// encrypt
 	c.encrypter.XORKeyStream(b, b)
@@ -86,12 +84,12 @@ func (c *EncryptedConnection) Read(b []byte) (n int, err error) {
 	// decrypt
 	c.decrypter.XORKeyStream(b[:size], b[:size])
 
-	glog.V(9).Infof("received and decrypted from %v: %v", c.RemoteAddr(), b[:size])
+	log.Debugf("received and decrypted from %v: %v", c.RemoteAddr(), b[:size])
 	return size, nil
 }
 
 func (c *EncryptedConnection) Close() error {
-	glog.V(9).Infof("closing encrypted connection to %v", c.RemoteAddr())
+	log.Debugf("closing encrypted connection to %v", c.RemoteAddr())
 	return c.conn.Close()
 }
 

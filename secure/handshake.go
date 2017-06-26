@@ -9,7 +9,6 @@ import (
 	"crypto/sha256"
 	"net"
 
-	"github.com/golang/glog"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -33,7 +32,7 @@ func SendHandshake(conn net.Conn, password []byte) (cipher.Stream, error) {
 	signature := mac.Sum(nil)
 	copy(header[aes.BlockSize+KeySize:], signature)
 
-	glog.V(8).Infof("sending encryption handshake: remote = %v, local = %v, iv = %v, salt = %v, signature = %v, aes = %v, hmac = %v", conn.RemoteAddr(), conn.LocalAddr(), iv, salt, signature, aeskey, hmackey)
+	log.Debugf("sending encryption handshake: remote = %v, local = %v, iv = %v, salt = %v, signature = %v, aes = %v, hmac = %v", conn.RemoteAddr(), conn.LocalAddr(), iv, salt, signature, aeskey, hmackey)
 
 	// create cipher
 	block, err := aes.NewCipher(aeskey)
@@ -72,7 +71,7 @@ func ReceiveHandshake(conn net.Conn, password []byte) (cipher.Stream, error) {
 	key := pbkdf2.Key(password, salt, KeyIteration, 2*KeySize, sha256.New)
 	aeskey, hmackey := key[:KeySize], key[KeySize:]
 
-	glog.V(8).Infof("received encryption handshake: remote = %v, local = %v, iv = %v, salt = %v, signature = %v, aes = %v, hmac = %v", conn.RemoteAddr(), conn.LocalAddr(), iv, salt, signature, aeskey, hmackey)
+	log.Debugf("received encryption handshake: remote = %v, local = %v, iv = %v, salt = %v, signature = %v, aes = %v, hmac = %v", conn.RemoteAddr(), conn.LocalAddr(), iv, salt, signature, aeskey, hmackey)
 
 	// sign iv and salt and validate signature in header
 	mac := hmac.New(sha256.New, hmackey)

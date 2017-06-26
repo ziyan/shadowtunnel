@@ -5,10 +5,13 @@ import (
 	"net"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/hashicorp/yamux"
-	"github.com/ziyan/shadowtunnel/pkg/shadowtunnel/secure"
+	"github.com/op/go-logging"
+
+	"github.com/ziyan/shadowtunnel/secure"
 )
+
+var log = logging.MustGetLogger("server")
 
 type Server struct {
 	password []byte
@@ -47,7 +50,7 @@ func (s *Server) listen() {
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
-			glog.Warningf("failed to accept tcp connection: %s", err)
+			log.Warningf("failed to accept tcp connection: %s", err)
 			break
 		}
 
@@ -58,7 +61,7 @@ func (s *Server) listen() {
 func (s *Server) accept(conn net.Conn) {
 	session, err := yamux.Server(secure.NewEncryptedConnection(conn, s.password), nil)
 	if err != nil {
-		glog.Errorf("failed to create server session: %s", err)
+		log.Errorf("failed to create server session: %s", err)
 		conn.Close()
 		return
 	}
@@ -70,14 +73,14 @@ func (s *Server) accept(conn net.Conn) {
 			break
 		}
 		if err != nil {
-			glog.Warningf("failed to accept stream: %s", err)
+			log.Warningf("failed to accept stream: %s", err)
 			break
 		}
 
 		go func() {
 			conn, err := net.DialTimeout("tcp", s.connect, s.timeout)
 			if err != nil {
-				glog.Warningf("failed to connect to remote server %s: %s", s.connect, err)
+				log.Warningf("failed to connect to remote server %s: %s", s.connect, err)
 				stream.Close()
 				return
 			}
