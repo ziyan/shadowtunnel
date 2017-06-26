@@ -90,7 +90,7 @@ func (s *Server) accept(conn net.Conn) {
 			}
 			defer conn2.Close()
 
-			log.Infof("established stream in server mode: %v -> %v", conn.RemoteAddr(), conn2.RemoteAddr())
+			log.Infof("established stream %v in server mode: %v -> %v", stream.StreamID(), conn.RemoteAddr(), conn2.RemoteAddr())
 
 			done1 := make(chan struct{})
 			go func() {
@@ -109,7 +109,7 @@ func (s *Server) accept(conn net.Conn) {
 			case <-done2:
 			}
 
-			log.Infof("closing stream in server mode: %v -> %v", conn.RemoteAddr(), conn2.RemoteAddr())
+			log.Infof("closing stream %v in server mode: %v -> %v", stream.StreamID(), conn.RemoteAddr(), conn2.RemoteAddr())
 		}()
 	}
 

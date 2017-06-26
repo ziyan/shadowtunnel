@@ -88,7 +88,7 @@ func (c *Client) accept(conn net.Conn) {
 	}
 	defer stream.Close()
 
-	log.Infof("established stream in client mode: %v -> %v", conn.RemoteAddr(), c.connect)
+	log.Infof("established stream %v in client mode: %v -> %v", stream.StreamID(), conn.RemoteAddr(), c.connect)
 
 	done1 := make(chan struct{})
 	go func() {
@@ -107,7 +107,7 @@ func (c *Client) accept(conn net.Conn) {
 	case <-done2:
 	}
 
-	log.Infof("closing stream in client mode: %v -> %v", conn.RemoteAddr(), c.connect)
+	log.Infof("closing stream %v in client mode: %v -> %v", stream.StreamID(), conn.RemoteAddr(), c.connect)
 }
 
 func (c *Client) open() (*yamux.Session, error) {
