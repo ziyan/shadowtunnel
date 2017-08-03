@@ -6,6 +6,7 @@ build: shadowtunnel
 
 shadowtunnel: $(shell find . -iname '*.go' -print)
 	CGO_ENABLED=0 godep go build github.com/ziyan/shadowtunnel
+	objcopy --strip-all shadowtunnel
 
 .PHONY: test
 test: build
